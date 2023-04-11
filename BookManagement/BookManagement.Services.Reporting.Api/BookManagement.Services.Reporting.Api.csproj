@@ -7,7 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookManagement.Services.Reporting.Core\BookManagement.Services.Reporting.Core.csproj" />
+    <ProjectReference Include="..\BookManagement.Services.Reporting.Data\BookManagement.Services.Reporting.Data.csproj" />
+    <ProjectReference Include="..\BookManagement.Services.Reporting.Service\BookManagement.Services.Reporting.Service.csproj" />
+    <ProjectReference Include="..\BookManagement.Shared\BookManagement.Shared.csproj" />
   </ItemGroup>
 
 </Project>

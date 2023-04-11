@@ -7,7 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookManagement.Services.Contact.Core\BookManagement.Services.Contact.Core.csproj" />
+    <ProjectReference Include="..\BookManagement.Services.Contact.Data\BookManagement.Services.Contact.Data.csproj" />
+    <ProjectReference Include="..\BookManagement.Services.Contact.Service\BookManagement.Services.Contact.Service.csproj" />
   </ItemGroup>
 
 </Project>
