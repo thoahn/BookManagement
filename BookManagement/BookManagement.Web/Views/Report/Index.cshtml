@@ -1,0 +1,173 @@
+﻿
+@{
+    ViewBag.Title = "Raporlar";
+}
+
+<h1 class="display-4">Raporlar</h1>
+<hr />
+
+<div id="app">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="">
+                Rapor Listesi
+            </h4>
+        </div>
+
+        <div class="col-5">
+
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-action text-primary" v-on:click="saveReport()" style="cursor:pointer;">
+                    <i class="fas fa-plus"></i> Rapor Talebi Oluştur
+                </li>
+                <li class="list-group-item list-group-item-action" v-for="item in reportList" style="cursor:pointer;">
+                    <div v-on:click="getReportData(item)" style="cursor:pointer;">
+                        <p class="mb-0"> {{item.id }} </p>
+                        <small class="text-muted">{{tarihFormatla(item.requestDate)}}</small>
+                    </div>
+                    <button class="btn btn-light position-absolute btn-sm" style="right:10px; bottom:10px;" v-if="item.status == 'Tamamlandı'">
+                        {{item.status}}
+                    </button>
+                    <button class="btn btn-primary position-absolute btn-sm" style="right:10px; bottom:10px;" v-else>
+                        {{item.status}}
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-7">
+            <h4 class="">
+                Rapor İçeriği
+            </h4>
+
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted font-weight-bold">Rapor Adı: </small> 
+                    <div>{{selectedReport.id}}</div>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted font-weight-bold">Rapor Talep Tarihi : </small> 
+                    <div>{{tarihFormatla(selectedReport.requestDate)}}</div>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Konum</th>
+                        <th>Rehbere Kayıtlı Kişi Sayısı</th>
+                        <th>Rehbere Kayıtlı Telefon Numarası Sayısı</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in reportData">
+                        <td>{{item.location}}</td>
+                        <td>{{item.registeredPersonCount}}</td>
+                        <td>{{item.registeredPhoneNoCount}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+@section Header{
+
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const signalRConn = new signalR.HubConnectionBuilder()
+                .withUrl("/reportHub").build();
+            signalRConn.start();
+
+            signalRConn.on("reportCreated", messege => {
+                vmReportApp.reportCreated(messege);
+            })
+        })
+    </script>
+}
+
+@section Scripts{
+    <script>
+
+        const reportApp = {
+            data() {
+                return {
+                    reportList: [],
+                    reportData: [],
+                    selectedReport: {},
+                }
+            },
+
+            methods: {
+
+                getReportList() {
+                    axios.post("/Report/GetReportList")
+                        .then(res => {
+                            this.reportList = res.data;
+                        });
+                },
+
+                saveReport() {
+
+                    let p = {};
+                    axios.post("/Report/SaveReport", p)
+                        .then(res => {
+                            if (res.data.error != undefined) {
+                                toastr.error(res.data.error);
+                                return false;
+                            }
+
+                            let tempArray = this.reportList.filter(a => a.id != res.data.id);
+                            tempArray.splice(0, 0, Object.assign({}, res.data));
+                            this.reportList = tempArray;
+
+                            toastr.success("Kayıt Başarılı");
+                        });
+                },
+
+                tarihFormatla(tarih) {
+                    if (tarih == undefined)
+                        return "";
+
+                    return new Date(tarih).toLocaleDateString()
+                },
+
+                reportCreated(id) {
+                    var report = this.reportList.filter(a => a.id == id)[0];
+                    report.status = "Tamamlandı";
+                },
+
+                getReportData(report) {
+
+                    axios.post("/Report/GetReportData?id=" + report.id)
+                        .then(res => {
+                            debugger;
+                            if (res.data.error != undefined) {
+                                toastr.error(res.data.error);
+                                return false;
+                            }
+
+                            this.reportData = res.data;
+                            this.selectedReport = report;
+
+                            toastr.success("Rapor Yüklendi.");
+                        });
+                }
+
+            },
+
+            mounted: function () {
+                this.getReportList();
+            },
+
+            computed: {
+            }
+
+        };
+
+        const vmReportApp = Vue.createApp(reportApp).mount('#app');
+    </script>
+}
